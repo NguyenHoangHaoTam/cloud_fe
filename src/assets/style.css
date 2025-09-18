@@ -27,7 +27,7 @@
   flex: 1;
   text-align: left;
   height: calc(100% - 120px);
-  max-height: 350px;
+  max-height: 300px;
 }
 
 .title {
@@ -211,7 +211,8 @@
 
 .add-btn {
   margin-top: 15px;
-  width: 100%;
+  width: 80%;
+  height: 40px;
 }
 
 /* BOTTOMBAR */
@@ -252,4 +253,38 @@
 .deadline {
   font-size: 0.9em;
   color: #555;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.modal input,
+.modal textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.modal .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }

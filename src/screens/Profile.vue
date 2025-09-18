@@ -2,17 +2,17 @@
   <div class="screen">
     <div class="box">
     <!-- TOPBAR -->
-    <div class="topbar">
-      <h1 class="title">TASK MANAGER</h1>
-      <img src="/logo.png" alt="logo" class="logo-small" />
-      <div class="actions">
-        <button class="btn-small" @click="goProfile">Profile</button>
-        <div class="welcome">
-          <p>Chào mừng<br /><b>{{ user?.name }}</b></p>
+      <div class="topbar">
+        <h1 class="title">TASK MANAGER</h1>
+        <img src="/logo.png" alt="logo" class="logo-small" />
+        <div class="actions">
+          <button class="btn-small" @click="goProfile">👤<br>Profile</button>
+          <div class="welcome">
+            <p>Chào mừng<br /><b>{{ user?.name }}</b></p>
+          </div>
+          <button class="btn-small danger" @click="logout">➜]<br>Logout</button>
         </div>
-        <button class="btn-small danger" @click="logout">Logout</button>
       </div>
-    </div>
 
     <!-- CONTENT -->
     <div class="content">
@@ -37,10 +37,11 @@
     </div>
 
     <!-- BOTTOMBAR -->
-    <div class="bottombar">
-        <button class="nav-btn" @click="$router.push('/main')">Home</button>
-        <button class="nav-btn" @click="$router.push('/history')">History</button>
-    </div>
+      <div class="bottombar">
+          <button class="nav-btn" @click="$router.push('/main')">Trang chủ</button>
+          <button class="nav-btn" @click="$router.push('/chart')">Thống kê</button>
+          <button class="nav-btn" @click="$router.push('/history')">Lịch sử</button>
+      </div>
     </div>
   </div>
 </template>
