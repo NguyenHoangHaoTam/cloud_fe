@@ -3,7 +3,5 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
-  base: process.env.NODE_ENV === 'production'
-    ? '/TaskFrontend/'
-    : '/'
+  base: '/' // Chỉnh lại thành '/' để chạy đúng trên Azure
 })
