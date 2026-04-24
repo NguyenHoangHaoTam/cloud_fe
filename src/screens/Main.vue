@@ -1,10 +1,9 @@
 <template>
   <div class="screen">
     <div class="box">
-      <!-- TOPBAR -->
       <div class="topbar">
         <h1 class="title">TASK MANAGER</h1>
-        <img src="/logo.png" alt="logo" class="logo-small" />
+        <img src="/logo.png" alt="logo" class="logo-small" v-if="hasLogo" />
         <div class="actions">
           <button class="btn-small" @click="goProfile">👤<br>Profile</button>
           <div class="welcome">
@@ -16,16 +15,14 @@
 
       <h2 class="subtitle">Danh sách công việc</h2>
 
-      <!-- FILTER -->
       <div style="margin:10px 0;text-align:center;">
-        <select v-model="filter" style="padding:6px;">
+        <select v-model="filter" style="padding:6px; border-radius: 4px;">
           <option value="az">A - Z</option>
           <option value="deadlineAsc">Deadline ↑</option>
           <option value="deadlineDesc">Deadline ↓</option>
         </select>
       </div>
 
-      <!-- LIST -->
       <div class="content">
         <div v-if="filteredTasks.length === 0" class="empty">Chưa có công việc nào</div>
 
@@ -48,14 +45,12 @@
 
       <button class="btn add-btn" @click="openAdd">+ Thêm</button>
 
-      <!-- BOTTOMBAR -->
       <div class="bottombar">
         <button class="nav-btn" @click="$router.push('/main')">Trang chủ</button>
         <button class="nav-btn" @click="$router.push('/chart')">Thống kê</button>
         <button class="nav-btn" @click="$router.push('/history')">Lịch sử</button>
       </div>
 
-      <!-- MODALS -->
       <TaskModal
         :show="showModal"
         :mode="modalMode"
@@ -84,6 +79,7 @@ const router = useRouter()
 const tasks = ref([])
 const user = JSON.parse(localStorage.getItem('user') || '{}')
 const filter = ref('az')
+const hasLogo = ref(true)
 
 const showModal = ref(false)
 const modalMode = ref('add')
@@ -95,16 +91,24 @@ const confirmTask = ref(null)
 const confirmMessage = ref('')
 
 function formatDeadline(d){
+  if(!d) return ''
   return new Date(d).toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})
 }
+
 function isOverdue(deadline){
   if(!deadline) return false
   return new Date(deadline) < new Date()
 }
 
-const fetchTasks = async ()=>{
-  const res = await api.get('/tasks')
-  tasks.value = res.data.filter(t => !t.status)
+// HÀM QUAN TRỌNG: Lấy task và lọc những cái CHƯA hoàn thành (!status)
+const fetchTasks = async () => {
+  try {
+    const res = await api.get('/tasks')
+    // Lọc những task có status là false, 0 hoặc null
+    tasks.value = res.data.filter(t => !t.status || t.status === 0 || t.status === '0')
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách task:", error)
+  }
 }
 
 const filteredTasks = computed(()=>{
@@ -120,21 +124,29 @@ function openAdd(){
   currentTask.value = { title:'', description:'', deadline:'' }
   showModal.value = true
 }
+
 function openEdit(task){
   modalMode.value = 'edit'
   currentTask.value = { ...task }
   showModal.value = true
 }
+
 function closeModal(){ showModal.value = false }
 
-async function saveTask(task){
-  if(modalMode.value==='add'){
-    await api.post('/tasks',task)
-  } else {
-    await api.put(`/tasks/${currentTask.value.id}`,task)
+// HÀM QUAN TRỌNG: Sửa logic lưu để ép status về 0 (chưa xong)
+async function saveTask(taskData){
+  try {
+    if(modalMode.value==='add'){
+      // Khi thêm mới, ép status = 0 để nó hiện ở Trang chủ
+      await api.post('/tasks', { ...taskData, status: 0 })
+    } else {
+      await api.put(`/tasks/${currentTask.value.id}`, taskData)
+    }
+    await fetchTasks()
+    showModal.value = false
+  } catch (error) {
+    alert("Không thể lưu công việc. Vui lòng kiểm tra lại!")
   }
-  await fetchTasks()
-  showModal.value = false
 }
 
 function openConfirm(task,action){
@@ -145,15 +157,21 @@ function openConfirm(task,action){
     : 'Bạn có chắc muốn xóa công việc này?'
   showConfirm.value = true
 }
+
 function closeConfirm(){ showConfirm.value = false }
 
 async function handleConfirm(){
-  if(confirmAction.value==='delete'){
-    await api.delete(`/tasks/${confirmTask.value.id}`)
-  } else if(confirmAction.value==='done'){
-    await api.put(`/tasks/${confirmTask.value.id}`,{ status:true })
+  try {
+    if(confirmAction.value==='delete'){
+      await api.delete(`/tasks/${confirmTask.value.id}`)
+    } else if(confirmAction.value==='done'){
+      // Khi bấm Xong, cập nhật status = 1 (hoặc true)
+      await api.put(`/tasks/${confirmTask.value.id}`, { status: 1 })
+    }
+    await fetchTasks()
+  } catch (error) {
+    console.error("Lỗi khi cập nhật trạng thái:", error)
   }
-  await fetchTasks()
   showConfirm.value = false
 }
 
@@ -165,3 +183,11 @@ function goProfile(){ router.push('/profile') }
 
 onMounted(fetchTasks)
 </script>
+
+<style scoped>
+/* Giữ nguyên phần CSS của ní nhé */
+.task-item.overdue {
+  border-left: 5px solid red;
+  background-color: #fff0f0;
+}
+</style>
