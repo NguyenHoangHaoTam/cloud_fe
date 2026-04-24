@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://taskbackend-vrp7.onrender.com/api'
+  baseURL: 'https://be-doan-cloud-hvdedbg9crhfhwcz.eastasia-01.azurewebsites.net/api'
 })
 
 api.interceptors.request.use(config => {
